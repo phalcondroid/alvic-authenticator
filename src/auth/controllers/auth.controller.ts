@@ -31,7 +31,10 @@ export class AuthController {
     @Get('verify/:uid')
     @Render('email-verification')
     async verify(@Param() params: any): Promise<any> {
-        return { msj: await this.service.verify(params.uid) };
+        return {
+            msj: await this.service.verify(params.uid),
+            baseUrl: process.env.BASE_URL
+        };
     }
 
     @Get('reset/:email')
@@ -42,16 +45,15 @@ export class AuthController {
     @Get('reset/:email/:uid')
     @Render('reset-password')
     async reset(@Param() params: any): Promise<any> {
-        console.log("params ", params);
         try {
             const result = await this.service.getByUid(params.uid);
             if (!result) {
-                return { error: "error" };
+                return { error: "error", baseUrl: process.env.BASE_URL };
             }
         } catch (error) {
-            return { error: "error" };
+            return { error: "error", baseUrl: process.env.BASE_URL };
         }
-        return { uid: params.uid };
+        return { uid: params.uid, baseUrl: process.env.BASE_URL };
     }
 
     @Post("reset-confirmation/:uid")
@@ -63,7 +65,7 @@ export class AuthController {
             data.new,
             data.confirm
         );
-        return { uid: params.uid, response: msj };
+        return { uid: params.uid, response: msj, baseUrl: process.env.BASE_URL };
     }
 
     @Get('deletion-request/:uid/:password')
@@ -74,12 +76,11 @@ export class AuthController {
     @Get('delete/:uid')
     @Render('confirm-deletion-account')
     async delete(@Param() params: any): Promise<any> {
-        return { uid: params.uid };
+        return { uid: params.uid, baseUrl: process.env.BASE_URL };
     }
 
     @Get("confirm-deletion/:uid")
     async confirmDeletion(@Body() data: any): Promise<boolean> {
-        console.log(" jajjaja deletion ", data);
         return true;
     }
 }
