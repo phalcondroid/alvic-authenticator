@@ -50,7 +50,8 @@ export class AuthService {
           template: "email-verification-template",
           context: {
             userName: userResponse.displayName,
-            uid: userResponse.uid
+            uid: userResponse.uid,
+            baseUrl: process.env.BASE_URL
           },
         });
       }
@@ -73,7 +74,8 @@ export class AuthService {
           template: "email-verification-template",
           context: {
             userName: userResponse.displayName,
-            uid: userResponse.uid
+            uid: userResponse.uid,
+            baseUrl: process.env.BASE_URL
           },
         });
       }
@@ -95,7 +97,8 @@ export class AuthService {
           context: {
             userName: userResponse.displayName,
             email: userResponse.email,
-            uid: userResponse.uid
+            uid: userResponse.uid,
+            baseUrl: process.env.BASE_URL
           },
         });
         return true;
@@ -142,7 +145,8 @@ export class AuthService {
           template: "email-verification-template",
           context: {
             userName: userResponse.displayName,
-            uid: userResponse.uid
+            uid: userResponse.uid,
+            baseUrl: process.env.BASE_URL
           },
         });
       }
