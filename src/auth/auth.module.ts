@@ -28,7 +28,7 @@ import { DatabaseModule } from 'src/database/database.module';
         }),
         DatabaseModule,
     ],
-    providers: [...userProviders, firebaseProvider, AuthService, AuthRepository,],
+    providers: [...userProviders, firebaseProvider, AuthService, AuthRepository],
     exports: [],
     controllers: [AuthController],
 })
