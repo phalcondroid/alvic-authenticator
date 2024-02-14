@@ -10,9 +10,14 @@ import { databaseProviders } from '../database/database.config';
 import { userProviders } from './config/model.providers';
 import { DatabaseModule } from 'src/database/database.module';
 
+function ifEquals(arg1, arg2, options) {
+    return (arg1 == arg2) ? options.fn(this) : options.inverse(this);
+}
+
 @Module({
     imports: [
-        ConfigModule, MailerModule.forRoot({
+        ConfigModule,
+        MailerModule.forRoot({
             transport: {
                 host: mailerConfig.server,
                 auth: {
@@ -22,13 +27,13 @@ import { DatabaseModule } from 'src/database/database.module';
             },
             template: {
                 dir: __dirname + '/templates',
-                adapter: new HandlebarsAdapter(),
+                adapter: new HandlebarsAdapter({ 'ifEquals': ifEquals }),
                 options: { strict: true },
             }
         }),
         DatabaseModule,
     ],
-    providers: [...userProviders, firebaseProvider, AuthService, AuthRepository],
+    providers: [...userProviders, AuthService, AuthRepository],
     exports: [],
     controllers: [AuthController],
 })

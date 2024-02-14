@@ -8,9 +8,9 @@ export class AuthController {
 
     constructor(private readonly service: AuthService) { }
 
-    @Get(":uid")
+    @Get(":email")
     async get(@Param() params: any): Promise<UserEntity> {
-        return await this.service.getById(params.uid);
+        return await this.service.getById(params.email);
     }
 
     @Post("login")
@@ -31,8 +31,12 @@ export class AuthController {
     @Get('verify/:uid')
     @Render('email-verification')
     async verify(@Param() params: any): Promise<any> {
+        const result = await this.service.verify(params.uid);
         return {
-            msj: await this.service.verify(params.uid),
+            msj: result.msj,
+            error: result.error,
+            succ: result.succ,
+            already: result.already,
             baseUrl: process.env.BASE_URL
         };
     }
@@ -66,6 +70,12 @@ export class AuthController {
             data.confirm
         );
         return { uid: params.uid, response: msj, baseUrl: process.env.BASE_URL };
+    }
+
+
+    @Get('forget/:email')
+    async forgetRequest(@Param() params: any): Promise<any> {
+        return await this.service.forgetRequest(params.email);
     }
 
     @Get('deletion-request/:uid/:password')

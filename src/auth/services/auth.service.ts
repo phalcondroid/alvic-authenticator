@@ -3,12 +3,12 @@ import { AuthRepository } from "../repositories/auth.repository";
 import { CreateUserRequest, ResendUserRequest } from "../contracts/createUser-request.interface";
 import { UserRecord } from "firebase-admin/lib/auth/user-record";
 import { MailerService } from "@nestjs-modules/mailer";
-import { mailerConfig } from "../config/auth.config";
 import { UserEntity } from "../entities/user.entity";
 import { AccountAlreadyExistException } from "../exceptions/account-already-exist.exception";
 import { AccountDoNotExistException } from "../exceptions/account-do-not-exist.exception";
 import { AccountDoNotVerifiedException } from "../exceptions/account-do-not-verified.exception";
 import { AccountCredentialsException } from "../exceptions/account-credentials.exception";
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class AuthService {
@@ -17,8 +17,8 @@ export class AuthService {
     private readonly mailer: MailerService
   ) { }
 
-  async getById(id: number) {
-    return await this.repository.getById(id);
+  async getById(id: string) {
+    return await this.repository.getUserByEmail(id);
   }
 
   async getByUid(uid: string) {
@@ -45,7 +45,6 @@ export class AuthService {
       if (userResponse) {
         this.mailer.sendMail({
           to: userResponse.email,
-          from: mailerConfig.from,
           subject: "Email Verification",
           template: "email-verification-template",
           context: {
@@ -69,8 +68,7 @@ export class AuthService {
       if (userResponse) {
         this.mailer.sendMail({
           to: userResponse.email,
-          from: mailerConfig.from,
-          subject: "Email Verification",
+          subject: "Verificación de cuenta",
           template: "email-verification-template",
           context: {
             userName: userResponse.displayName,
@@ -91,10 +89,34 @@ export class AuthService {
       if (userResponse) {
         this.mailer.sendMail({
           to: userResponse.email,
-          from: mailerConfig.from,
-          subject: "Reset password request",
+          subject: "Solicitud de cambio de contraseña",
           template: "reset-password-template",
           context: {
+            userName: userResponse.displayName,
+            email: userResponse.email,
+            uid: userResponse.uid,
+            baseUrl: process.env.BASE_URL
+          },
+        });
+        return true;
+      }
+    } catch (e) { }
+    throw new AccountDoNotExistException();
+  }
+
+  async forgetRequest(email: string): Promise<boolean> {
+    try {
+      const userResponse: UserEntity = await this.repository.getUserByEmail(email);
+      if (userResponse) {
+        userResponse.password = uuidv4();
+        userResponse.emailVerified = false;
+        await userResponse.save();
+        this.mailer.sendMail({
+          to: userResponse.email,
+          subject: "Olvido de contraseña",
+          template: "temp-pass-template",
+          context: {
+            tempPass: userResponse.password,
             userName: userResponse.displayName,
             email: userResponse.email,
             uid: userResponse.uid,
@@ -112,6 +134,7 @@ export class AuthService {
       const exist: UserEntity = await this.repository.getUserByUid(uid);
       if (exist && exist.password === old && newPass === confirm) {
         exist.password = newPass;
+        exist.emailVerified = true;
         await exist.save();
         return "Password actualizado correctamente!";
       }
@@ -120,18 +143,18 @@ export class AuthService {
   }
 
 
-  async verify(uid: string): Promise<string> {
+  async verify(uid: string): Promise<any> {
     try {
       const exist: UserEntity = await this.repository.getUserByUid(uid);
       if (exist.emailVerified) {
-        return "La cuenta ya ha sido verificada!";
+        return { msj: "La cuenta ya ha sido verificada!", already: 1 };
       }
       const userResponse: UserEntity = await this.repository.verifyAccountCreation(uid);
       if (userResponse.emailVerified === true) {
-        return "La cuenta ha sido verificada correctamente!";
+        return { msj: "La cuenta ha sido verificada correctamente!", succ: true };
       }
     } catch (e) { }
-    return "Hubo un error al verificar el link de la cuenta!";
+    return { msj: "Hubo un error al verificar el link de la cuenta!", error: true };
   }
 
   async deletionRequest(uid: string, pass: string): Promise<boolean> {
@@ -140,7 +163,6 @@ export class AuthService {
       if (userResponse && userResponse.password === pass) {
         this.mailer.sendMail({
           to: userResponse.email,
-          from: mailerConfig.from,
           subject: "Email Verification",
           template: "email-verification-template",
           context: {

@@ -31,5 +31,5 @@ export const mailerConfig = {
     server: "smtp.gmail.com",
     from: "phalcondroid@gmail.com",
     sender: "phalcondroid@gmail.com",
-    password: process.env.EMAIL_PASSWORD,
+    password: "ksae vvbh uklk zanz"
 };

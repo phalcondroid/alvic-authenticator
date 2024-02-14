@@ -4,10 +4,53 @@
 <head>
     <meta charset="utf-8">
     <title>Email verification</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
 </head>
 
 <body>
-    <h1>{{ data.msj }}</h1>
+    <br>
+    <div class="container">
+        <div class="row ">
+            <div class="col-md-5"> &nbsp;</div>
+            <div class="col-md-2 mx-auto">
+                <img src="https://scontent.fbog4-1.fna.fbcdn.net/v/t39.30808-6/301356034_510514234356703_7333671487040094553_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=efb6e6&_nc_ohc=oubgdTtuRKQAX-haqKH&_nc_ht=scontent.fbog4-1.fna&oh=00_AfCNwQZoU3mfjPFu7L9FWRPxUQrkxdMkDHyHYGTa62W59g&oe=65D0BF37"
+                    alt="" width="200px" height="200px">
+            </div>
+            <div class="col-md-5"> &nbsp;</div>
+        </div>
+        <br>
+        <div class="row ">
+            <div class="col-md-12">
+                {{#if data.succ }}
+                <div class="alert alert-success" role="alert">
+                    {{ data.msj }}
+                </div>
+                {{/if}}
+                {{#if data.already }}
+                <div class="alert alert-warning" role="alert">
+                    {{ data.msj }}
+                </div>
+                {{/if}}
+                {{#if data.error }}
+                <div class="alert alert-danger" role="alert">
+                    {{ data.msj }}
+                </div>
+                {{/if}}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <p class="lead">
+                    Tu cuenta será verificada como una cuenta válida para alvic fidelity.
+                </p>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>
